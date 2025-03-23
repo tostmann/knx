@@ -10,7 +10,11 @@
     #define KNX_SERIAL Serial1
     #pragma warn "KNX_SERIAL not defined, using Serial1"
 #endif
- 
+
+#ifndef KNX_BAUDRATE
+    #define KNX_BAUDRATE 19200
+#endif
+
 #ifdef KNX_IP_LAN
     #include "ETH.h"
     #define KNX_NETIF ETH

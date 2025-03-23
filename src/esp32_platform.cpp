@@ -49,7 +49,7 @@ void Esp32Platform::knxUartPins(int8_t rxPin, int8_t txPin)
 // ESP specific uart handling with pins
 void Esp32Platform::setupUart()
 {
-    _knxSerial->begin(19200, SERIAL_8E1, _rxPin, _txPin);
+    _knxSerial->begin(KNX_BAUDRATE, SERIAL_8E1, _rxPin, _txPin);
 
     while (!_knxSerial)
         ;

@@ -1,7 +1,6 @@
 /*
 
-Support for WiFi/TPUART USB-Stick "TUL" from busware.de
-https://busware.de/tiki-index.php?page=tul
+Support for WiFi/TPUART USB-Stick "TUL" from busware.de - https://busware.de/tul
 
 */
 
@@ -16,6 +15,8 @@ void setup()
 {
     Serial.begin(115200);
     ArduinoPlatform::SerialDebug = &Serial;
+
+    pinMode(KNX_LED, OUTPUT);
 
     WiFi.begin(ssid, password);
     while(WiFi.status() != WL_CONNECTED) {

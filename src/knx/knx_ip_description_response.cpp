@@ -42,7 +42,11 @@ KnxIpDescriptionResponse::KnxIpDescriptionResponse(IpParameterObject& parameters
     prop->read(mac_address);
     _deviceInfo.macAddress(mac_address);
 
+#ifdef MY_FRIENDLY_NAME
+    uint8_t friendlyName[LEN_FRIENDLY_NAME] = {MY_FRIENDLY_NAME};
+#else
     uint8_t friendlyName[LEN_FRIENDLY_NAME] = {0};
+#endif
     prop = parameters.property(PID_FRIENDLY_NAME);
     prop->read(1, LEN_FRIENDLY_NAME, friendlyName);
     _deviceInfo.friendlyName(friendlyName);

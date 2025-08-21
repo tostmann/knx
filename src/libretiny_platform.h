@@ -1,26 +1,36 @@
-#ifdef ARDUINO
+#ifdef LIBRETINY
 #include "arduino_platform.h"
 
-#include "Arduino.h"
+#include <WiFi.h>
+#include <LwIPUdp.h>
 
-#ifdef ARDUINO_ARCH_SAMD
-
-#define PAGES_PER_ROW 4
-
-class SamdPlatform : public ArduinoPlatform
+class LibretinyPlatform : public ArduinoPlatform
 {
     public:
-        SamdPlatform();
-        SamdPlatform( HardwareSerial* s);
+        LibretinyPlatform();
+        LibretinyPlatform(HardwareSerial* s);
+
+        // ip stuff
+        uint32_t currentIpAddress() override;
+        uint32_t currentSubnetMask() override;
+        uint32_t currentDefaultGateway() override;
+        void macAddress(uint8_t* addr) override;
 
         // unique serial number
         uint32_t uniqueSerialNumber() override;
 
+        // basic stuff
         void restart();
-#ifdef USE_SAMD_EEPROM_EMULATION
-        uint8_t* getEepromBuffer(uint32_t size);
-        void commitToEeprom();
-#else
+
+        //multicast
+        void setupMultiCast(uint32_t addr, uint16_t port) override;
+        void closeMultiCast() override;
+        bool sendBytesMultiCast(uint8_t* buffer, uint16_t len) override;
+        int readBytesMultiCast(uint8_t* buffer, uint16_t maxLen) override;
+
+        //unicast
+        bool sendBytesUniCast(uint32_t addr, uint16_t port, uint8_t* buffer, uint16_t len) override;
+
         // size of one EraseBlock in pages
         virtual size_t flashEraseBlockSize();
         // size of one flash page in bytes
@@ -36,22 +46,8 @@ class SamdPlatform : public ArduinoPlatform
 
         // writes _eraseblockBuffer to flash - overrides Plattform::writeBufferedEraseBlock() for performance optimization only
         void writeBufferedEraseBlock();
-
     private:
-        void init();
-        uint32_t _MemoryEnd = 0;
-        uint32_t _MemoryStart = 0;
-        uint32_t _pageSize;
-        uint32_t _rowSize;
-        uint32_t _pageCnt;
-
-        uint32_t getRowAddr(uint32_t flasAddr);
-        void write(const volatile void* flash_ptr, const void* data, uint32_t size);
-        void erase(const volatile void* flash_ptr, uint32_t size);
-        void eraseRow(const volatile void* flash_ptr);
-
-#endif
+        WiFiUDP _udp;
 };
 
 #endif
-#endif // ARDUINO

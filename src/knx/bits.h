@@ -11,21 +11,13 @@
     #define htonl(x) ( (getbyte(x,0)<<24) | (getbyte(x,1)<<16) | (getbyte(x,2)<<8) | getbyte(x,3) )
     #define ntohs(x) htons(x)
     #define ntohl(x) htonl(x)
+#elif defined(LIBRETINY)
+    #include <lwip/udp.h>
+    #define htons(x) lwip_htons(x)
+    #define htonl(x) lwip_htonl(x)
 #endif
 
-#ifndef MIN
-    #define MIN(a, b) ((a < b) ? (a) : (b))
-#endif
-
-#ifndef MAX
-    #define MAX(a, b) ((a > b) ? (a) : (b))
-#endif
-
-#ifndef ABS
-    #define ABS(x)    ((x > 0) ? (x) : (-x))
-#endif
-
-#if defined(ARDUINO_ARCH_SAMD) || defined(ARDUINO_ARCH_RP2040) || defined(ARDUINO_ARCH_STM32)
+#if defined(ARDUINO_ARCH_SAMD) || defined(ARDUINO_ARCH_RP2040) || defined(ARDUINO_ARCH_STM32) || defined(LIBRETINY)
     #include <Arduino.h>
 #elif defined(ARDUINO_ARCH_ESP8266)
     #include <Arduino.h>
@@ -33,6 +25,28 @@
 #elif defined(ARDUINO_ARCH_ESP32)
     #include <Arduino.h>
     #include <esp_wifi.h>
+#elif defined(ESP_PLATFORM)
+    #include <lwip/inet.h>
+    #include <driver/gpio.h>
+    // // Define Arduino-like macros if needed for compatibility
+
+    #define lowByte(val) ((val)&255)
+    #define highByte(val) (((val) >> ((sizeof(val) - 1) << 3)) & 255)
+    #define bitRead(val, bitno) (((val) >> (bitno)) & 1)
+    #define DEC 10
+    #define HEX 16
+    #define OCT  8
+    #define BIN  2
+    #define LOW  0
+    #define HIGH 1
+    #define CHANGE GPIO_INTR_ANYEDGE
+    #define FALLING GPIO_INTR_NEGEDGE
+    #define RISING GPIO_INTR_POSEDGE
+    // Implement or map Arduino-like functions if needed
+    uint32_t millis();
+    typedef void (*IsrFuncPtr)(void); // Arduino-style
+    typedef void (*EspIsrFuncPtr)(void*); // ESP-IDF-style
+    void attachInterrupt(uint32_t pin, IsrFuncPtr callback, uint32_t mode);
 #else // Non-Arduino platforms
     #define lowByte(val) ((val)&255)
     #define highByte(val) (((val) >> ((sizeof(val) - 1) << 3)) & 255)
@@ -61,6 +75,18 @@
     uint32_t digitalRead(uint32_t dwPin);
     typedef void (*voidFuncPtr)(void);
     void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode);
+#endif
+
+#ifndef MIN
+    #define MIN(a, b) ((a < b) ? (a) : (b))
+#endif
+
+#ifndef MAX
+    #define MAX(a, b) ((a > b) ? (a) : (b))
+#endif
+
+#ifndef ABS
+    #define ABS(x)    ((x > 0) ? (x) : (-x))
 #endif
 
 #ifndef KNX_NO_PRINT
